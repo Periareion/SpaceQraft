@@ -7,7 +7,11 @@ try:
 except ImportError:
     from utils import validate_types
 
+
 class Quaternion:
+    """
+    Create a Quaternion number with a 4-dimensional vector [w, x, y, z]
+    """
     
     def __init__(self, *args):
         
@@ -38,28 +42,28 @@ class Quaternion:
         return f'({self.w:.3f} {self.x:+.3f}i {self.y:+.3f}j {self.z:+.3f}k)'
     
     @property
-    def w(self):
+    def w(self) -> float:
         return self.vector[0]
     @w.setter
     def w(self, value):
         self.vector[0] = value
 
     @property
-    def x(self):
+    def x(self) -> float:
         return self.vector[1]
     @x.setter
     def x(self, value):
         self.vector[1] = value
 
     @property
-    def y(self):
+    def y(self) -> float:
         return self.vector[2]
     @y.setter
     def y(self, value):
         self.vector[2] = value
 
     @property
-    def z(self):
+    def z(self) -> float:
         return self.vector[3]
     @z.setter
     def z(self, value):
@@ -67,7 +71,7 @@ class Quaternion:
 
 
     @property
-    def norm(self):
+    def norm(self) -> float:
         return np.linalg.norm(self.vector)
     @norm.setter
     def norm(self, new_norm):
@@ -88,7 +92,7 @@ class Quaternion:
         return self.__class__(self.w, -self.x, -self.y, -self.z)
     
     @property
-    def square_sum(self):
+    def square_sum(self)  -> float:
         return sum((x**2 for x in self.vector))
 
     @property
@@ -180,7 +184,7 @@ class Quaternion:
         return iter(self.vector)
     
     @property
-    def components(self):
+    def components(self) -> list[float]:
         return [self.w, self.x, self.y, self.z]
 
     def copy(self):

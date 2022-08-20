@@ -42,6 +42,8 @@ def draw_triangle(vertices=[Q([-5,-5,0]), Q([5,-5,0]), Q([0,5,0])], color=(1,1,1
     
     for qvector in vertices:
         drop_vertex(qvector.vector3, tuple(map(lambda x: x*light_factor, color)))
+    
+    # Should return Triangle instance from shapes.py
 
 
 def draw_tetragon(vertices, color=(1,1,1), light_vector=Q([0,0,1])):
@@ -50,4 +52,30 @@ def draw_tetragon(vertices, color=(1,1,1), light_vector=Q([0,0,1])):
     
     draw_triangle([vertices[0], vertices[1], vertices[2]], color, light_vector)
     draw_triangle([vertices[0], vertices[2], vertices[3]], color, light_vector)
+    
+    # Tetragons are added to the DrawBuffer as two triangles
 
+
+def draw_polygon():
+    pass
+
+
+class DrawBuffer:
+    
+    def __init__(self):
+        self.lines = [] # ((p1,p2), color, width)
+        self.triangles = [] # ((p1,p2,p3), color_illuminated)
+        
+    def draw(self):
+        
+        if self.lines:
+            glBegin(GL_LINES)
+            for line in self.lines:
+                draw_line(line)
+            glEnd()
+        
+        if self.triangles:
+            glBegin(GL_TRIANGLES)
+            for triangle in self.triangles:
+                draw_triangle(triangle)
+            glEnd()

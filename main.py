@@ -18,42 +18,53 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 
 from qraft import *
-
-def rotate(square, qvector, angle):
-    for q in square:
-        q.rotate(qvector, angle)
         
 def main(width, height, FPS=60):
     
     window = pygame.display.set_mode((width, height), DOUBLEBUF|OPENGL)
-    pygame.display.set_caption("Qraft")
+    pygame.display.set_caption('Qraft')
+    pygame.display.set_icon(pygame.image.load('qraft/assets/icon.png'))
     
     t = 0
     dt = 1/FPS
     clock = pygame.time.Clock()
     
     gluPerspective(60, width/height, 0.1, 50.0)
-    glTranslatef(0, 0, -2)
+    glTranslatef(0, 0, -3)
 
     glClearDepth(1.0)
     glDepthFunc(GL_LESS)
     glEnable(GL_DEPTH_TEST)
 
-    light_vector = Q([0,0,-1])
+    light_vector = Q([1,-1.5,-2])
     
-    group = shapes.Group([
-        shapes.Cuboid((0.5, 0, 0),(1, 0.5, 0.5),(0.85,0.3,0.25)),
-        shapes.Cuboid((0.7, 0.25, 0),(0.3, 0.2, 0.4),(0.3,0.7,0.9))],
-        position=Q([0.5,0,0]),
-        unit_vectors=UNIT_QUATERNIONS.copy().rotate(Q([1,1,1]), math.tau/3))
-    cubes = shapes.Group([group])#shapes.Cuboid(color=(0.3,0.3,0.7)), shapes.Cuboid((-0.5, 0, 0),(1, 0.5, 0.5),(0.5,0.2,0.2)), group])
+    from copy import copy
     
+    # Make video with Pixies' song "Allison".
+    amogus = gm.Group([gm.Group([
+        gm.Cuboid((0.65, 0, 0),(0.65, 0.5, 0.55),(0.85,0.3,0.25)),
+        gm.Cuboid((0.5, -0.3, 0),(0.5, 0.2, 0.4),(0.85,0.3,0.25)),
+        gm.Cuboid((0.3, 0, 0.15),(0.5, 0.4, 0.25),(0.85,0.3,0.25)),
+        gm.Cuboid((0.3, 0, -0.15),(0.5, 0.4, 0.25),(0.85,0.3,0.25)),
+        gm.Cuboid((0.7, 0.25, 0),(0.3, 0.2, 0.4),(0.3,0.7,0.9)),
+        gm.Cuboid((0.8, 0.25, -0.1),(0.05, 0.21, 0.1),(0.8,0.9,1))],
+        position=[-0.5,0,0])])
+    
+    amogi = gm.Group([
+        gm.Group([(amogus)], [0,0,1]),
+        gm.Group([(amogus)], [0,0,-1])])
+    
+    cubes = gm.Group([
+        gm.Cuboid(color=(0.3,0.3,0.7)),
+        gm.Cuboid((-0.5, 0, 0),(1, 0.5, 0.5),(0.5,0.2,0.2)),
+        gm.Cuboid((1, 0, 0),(0.65, 0.5, 0.55),(0.35,0.9,0.25))])
+
+    sphere = gm.Group([gm.Sphere(radius=1)])
+    k = 0
     running = True
     while running:
         
-        #gluLookAt
-        
-        key_presses = pygame.key.get_pressed()
+        # TODO: add functionality utilizing gluLookAt
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -72,20 +83,36 @@ def main(width, height, FPS=60):
                 if event.key == pygame.K_e:
                     cubes.position.z -= 0.1
         
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_s]:
+            sphere.unit_vectors.rotate(Q([1,0,0]), 0.05)
+        if keys[pygame.K_w]:
+            sphere.unit_vectors.rotate(Q([-1,0,0]), 0.05)
+        if keys[pygame.K_e]:
+            sphere.unit_vectors.rotate(Q([0,0,1]), 0.05)
+        if keys[pygame.K_q]:
+            sphere.unit_vectors.rotate(Q([0,0,-1]), 0.05)
+        if keys[pygame.K_a]:
+            sphere.unit_vectors.rotate(Q([0,1,0]), 0.05)
+        if keys[pygame.K_d]:
+            sphere.unit_vectors.rotate(Q([0,-1,0]), 0.05)
+        
         glClearColor(0.2, 0.2, 0.3, 1.0)
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
         
-        cubes.unit_vectors.rotate(Q([1,2,3]), 0.02)
-        
         # Set the stage for drawing triangles
         glBegin(GL_TRIANGLES)
-        cubes.render(light_vector=light_vector)
+        #amogi.render(light_vector=light_vector)
+        sphere.render(light_vector=light_vector)
         glEnd()
         
         pygame.display.flip()
         
         t += dt
         clock.tick(FPS)
+        fps = clock.get_fps()
+        if not (k:=k+1)%30:print(fps)
+
     
     pygame.quit()
     
