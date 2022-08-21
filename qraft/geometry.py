@@ -1,5 +1,6 @@
 
 import math
+import numpy as np
 
 try:
     from .aquaternion import *
@@ -9,34 +10,6 @@ except ImportError:
     from aquaternion import *
     from utils import validate_types
     import graphics
-
-class Polygon:
-    
-    # Don't call Polygon
-    def initialize(self, n, vertices):
-        Polygon.check_vertices(n, vertices)
-        self.vertices = vertices
-    
-    @classmethod
-    def check_vertices(cls, n, vertices):
-        if len(vertices) != n:
-            raise IndexError(f"Polygon must have {n} vertices. ({vertices})")
-        if not validate_types(vertices, Quaternion):
-            raise TypeError("Vertices must be Quaternion instances.")
-
-
-class Triangle(Polygon):
-    n = 3
-    
-    def __init__(self, vertices, color=(1,1,1)):
-        super().initialize(self.n, vertices, color)
-
-
-class Tetragon(Polygon):
-    n = 4
-    
-    def __init__(self, vertices, color=(1,1,1)):
-        super().initialize(self.n, vertices, color)
 
 
 class Mesh:
@@ -58,7 +31,6 @@ class Mesh:
                         [(qvertices[vertex] + position) for vertex in face],
                         self.color,
                         light_vector)
-            
 
 
 class Cuboid(Mesh):
@@ -84,11 +56,21 @@ class Cuboid(Mesh):
         self.size = size
         self.volume = math.prod(size)
         self.color = color
+
+        self.faces = polygons_to_triangles(self.faces)
         
         self.qvertices = QuaternionArray(
             [0.5*Q(vertex).morph(self.size[0]*qi, self.size[1]*qj, self.size[2]*qk) for vertex in self.vertices]
         )
 
+
+def polygons_to_triangles(polygons):
+    triangles = [0,]*sum([len(polygon)-2 for polygon in polygons])
+    i = 0
+    for polygon in polygons:
+        for j in range(len(polygon)-2):
+            i += 1
+            triangles[i-1] = (polygon[0], polygon[1+j], polygon[2+j])
 
 class Sphere(Mesh):
 
@@ -96,8 +78,8 @@ class Sphere(Mesh):
                  position=(0,0,0),
                  radius=0.5,
                  color=(1,1,1),
-                 vertical_n=10,
-                 horizontal_n=10):
+                 vertical_n=20,
+                 horizontal_n=20):
         super().__init__(position)
 
         self.radius = radius
@@ -106,8 +88,8 @@ class Sphere(Mesh):
         self.color = color
 
         self.vertices = Sphere.get_vertices(radius, vertical_n, horizontal_n)
-        print(self.vertices)
-        self.faces = Sphere.get_faces(vertical_n, horizontal_n)
+        self.faces = polygons_to_triangles(Sphere.get_faces(vertical_n, horizontal_n))
+
         self.qvertices = QuaternionArray(
             [Q(vertex) for vertex in self.vertices]
         )
@@ -115,11 +97,6 @@ class Sphere(Mesh):
     @classmethod
     def vertices_in_row(cls, m, n, row):
         return 1 if (row == 0 or row == m-1) else n
-    
-
-    #@classmethod
-    #def squares_under_row(cls, m, i):
-    #    return Sphere.vertices_in_row(m, 0, i) == Sphere.vertices_in_row(m, 0, i+1)
         
     @classmethod
     def vertex_number(cls, m, n, i, j):
@@ -201,8 +178,6 @@ class Sphere(Mesh):
                     faces[current_face_number-1] = (vertex0, vertex2, vertex3)
 
         return faces
-
-print(Sphere.vertex_number(8, 8, 7, 0))
 
 # Groups are for putting together Mesh objects
 class Group:

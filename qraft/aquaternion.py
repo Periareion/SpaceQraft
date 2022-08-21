@@ -10,7 +10,7 @@ except ImportError:
 
 class Quaternion:
     """
-    Create a Quaternion number with a 4-dimensional vector [w, x, y, z]
+    Create a Quaternion number with 4 components [w, x, y, z]
     """
     
     def __init__(self, *args):
@@ -148,6 +148,8 @@ class Quaternion:
             return other*self
         
         return NotImplemented
+    
+    
 
     def __truediv__(self, other):
         
@@ -211,6 +213,9 @@ class Quaternion:
             self.x*i_prime.y + self.y*j_prime.y + self.z*k_prime.y,
             self.x*i_prime.z + self.y*j_prime.z + self.z*k_prime.z,
         )
+
+    def demorph(self, i_prime, j_prime, k_prime):
+        pass
     
     
     @classmethod
@@ -219,6 +224,14 @@ class Quaternion:
         v = q.qvector
         norm = v.norm
         return math.exp(a)*(math.cos(norm)+v/norm*math.sin(norm))
+
+    @classmethod
+    def cross(cls, q1, q2):
+        return np.cross(q1.vector3, q2.vector3)
+
+    @classmethod
+    def dot(cls, q1, q2):
+        return np.dot(q1.vector, q2.vector)
 
 Q = Quaternion
 
