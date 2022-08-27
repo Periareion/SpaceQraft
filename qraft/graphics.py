@@ -33,12 +33,20 @@ def triangle_light_factor(vertices, light_vector, ambient_light):
     anomaly = 2 * math.asin(chord / 2)
     return ambient_light + (1 - ambient_light)*max(0, math.cos(anomaly))
 
+def triangle_light_factor1(vertices: tuple[Quaternion], light_vector: Quaternion, ambient_light: float):
+    light_vector.normalize()
+    if len(vertices) != 3:
+        raise IndexError(f"Need 3 vertices to make a three dimensional normal vector.")
+    p1, p2, p3 = vertices
+    normal_vector = ((p2 - p1)*(p3 - p2)).qvector.normalized
+    return ambient_light + (1 - ambient_light)*max(0, Quaternion.dot(-normal_vector, light_vector))
+
 
 def draw_triangle(vertices=[Q([-5,-5,0]), Q([5,-5,0]), Q([0,5,0])], color=(1,1,1), light_vector=Q([0,0,0])):
     if len(vertices) != 3:
         raise IndexError(f"Can't draw triangle with {len(vertices)} vertices.")
     
-    light_factor = triangle_light_factor(vertices, light_vector, 0.3)
+    light_factor = triangle_light_factor(vertices, light_vector, 0.5)
     
     for qvector in vertices:
         drop_vertex(qvector.vector3, tuple(map(lambda x: x*light_factor, color)))

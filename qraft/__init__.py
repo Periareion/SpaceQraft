@@ -1,3 +1,2 @@
-from .aquaternion import *
-from . import graphics
-from . import geometry as gm
+
+from .all_imports import *

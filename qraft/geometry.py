@@ -45,7 +45,7 @@ class Mesh:
         self.position = Q(position)
 
     def render(self, position=Q([0,0,0]), unit_vectors=UNIT_QUATERNIONS.copy(), light_vector=Q([0,0,0])):
-        qvertices = QA([(vertex + self.position).morph(*unit_vectors) for vertex in self.qvertices])
+        qvertices = QA([(vertex + self.position).morphed(*unit_vectors) for vertex in self.qvertices])
         for face in self.faces:
             match len(face):
                 case 3:
@@ -86,7 +86,7 @@ class Cuboid(Mesh):
         self.color = color
         
         self.qvertices = QuaternionArray(
-            [0.5*Q(vertex).morph(self.size[0]*qi, self.size[1]*qj, self.size[2]*qk) for vertex in self.vertices]
+            [0.5*Q(vertex).morphed(self.size[0]*qi, self.size[1]*qj, self.size[2]*qk) for vertex in self.vertices]
         )
 
 
@@ -106,7 +106,6 @@ class Sphere(Mesh):
         self.color = color
 
         self.vertices = Sphere.get_vertices(radius, vertical_n, horizontal_n)
-        print(self.vertices)
         self.faces = Sphere.get_faces(vertical_n, horizontal_n)
         self.qvertices = QuaternionArray(
             [Q(vertex) for vertex in self.vertices]
@@ -202,7 +201,7 @@ class Sphere(Mesh):
 
         return faces
 
-print(Sphere.vertex_number(8, 8, 7, 0))
+#print(Sphere.vertex_number(8, 8, 7, 0))
 
 # Groups are for putting together Mesh objects
 class Group:
@@ -216,6 +215,6 @@ class Group:
         unit_vectors = UNIT_QUATERNIONS.copy() if unit_vectors is None else unit_vectors
         for shape in self.shapes:
             if isinstance(shape, Mesh):
-                shape.render(position + self.position.morph(*unit_vectors), self.unit_vectors.morph(*unit_vectors), light_vector)
+                shape.render(position + self.position.morphed(*unit_vectors), self.unit_vectors.morphed(*unit_vectors), light_vector)
             elif isinstance(shape, Group):
-                shape.render(position + self.position.morph(*unit_vectors), self.unit_vectors.morph(*unit_vectors), light_vector)
+                shape.render(position + self.position.morphed(*unit_vectors), self.unit_vectors.morphed(*unit_vectors), light_vector)
