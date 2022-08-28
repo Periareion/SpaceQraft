@@ -1,14 +1,8 @@
 
 import math
 
-try:
-    from .aquaternion import *
-    from .utils import validate_types
-    from . import graphics
-except ImportError:
-    from aquaternion import *
-    from utils import validate_types
-    import graphics
+from .aquaternion import *
+from . import graphics
 
 class Polygon:
     
@@ -21,7 +15,7 @@ class Polygon:
     def check_vertices(cls, n, vertices):
         if len(vertices) != n:
             raise IndexError(f"Polygon must have {n} vertices. ({vertices})")
-        if not validate_types(vertices, Quaternion):
+        if not (False not in [isinstance(x, Quaternion) for x in vertices]):
             raise TypeError("Vertices must be Quaternion instances.")
 
 
@@ -72,7 +66,7 @@ class Cuboid(Mesh):
              (0, 2), (1, 3), (4, 6), (5, 7),
              (0, 1), (2, 3), (4, 5), (6, 7))
 
-    faces = ((0, 1, 3, 2), (0, 4, 5, 1), (0, 4, 6, 2),
+    faces = ((0, 1, 3, 2), (0, 4, 5, 1), (0, 2, 6, 4),
              (7, 5, 4, 6), (7, 6, 2, 3), (7, 3, 1, 5))
 
     def __init__(self,

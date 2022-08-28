@@ -1,9 +1,4 @@
 
-from .all_imports import *
-
-
-"""
-    
     def colored_amogus(color):
         
         # Make video with Pixies' song "Allison".
@@ -38,4 +33,3 @@ from .all_imports import *
         
         amogi.render(light_vector=light_vector)
         amogi2.render(light_vector=light_vector)
-"""

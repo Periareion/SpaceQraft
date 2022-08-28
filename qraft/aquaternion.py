@@ -301,6 +301,9 @@ class QuaternionArray:
     def __setitem__(self, index, value):
         self.array[int(index)] = Quaternion(value)
 
+    def __neg__(self):
+        return self.__class__(list((-q for q in self.array)))
+
     def rotate(self, axis, angle):
         for q in self.array:
             q.rotate(axis, angle)
@@ -308,6 +311,9 @@ class QuaternionArray:
 
     def morphed(self, i_prime, j_prime, k_prime):
         return self.__class__(list([q.morphed(i_prime, j_prime, k_prime) for q in self.array]))
+
+    def demorphed(self, i_prime, j_prime, k_prime):
+        return self.__class__(list([q.demorphed(i_prime, j_prime, k_prime) for q in self.array]))
 
     def copy(self):
         return self.__class__([q.copy() for q in self.array])

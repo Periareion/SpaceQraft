@@ -1,5 +1,12 @@
 
-from .all_imports import *
+import pygame
+from pygame.locals import DOUBLEBUF, OPENGL
+
+from OpenGL.GL import glClearDepth, glDepthFunc, glEnable, glClearColor, glClear, glBegin, glEnd, glMatrixMode, glLoadIdentity
+from OpenGL.GL import GL_LESS, GL_DEPTH_TEST, GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_TRIANGLES, GL_PROJECTION, GL_MODELVIEW
+from OpenGL.GLU import gluPerspective
+
+from .aquaternion import *
 
 class Scene:
 
@@ -10,7 +17,7 @@ class Scene:
         self.background_color = background_color
 
         self.window = pygame.display.set_mode((width, height), DOUBLEBUF|OPENGL)
-        pygame.display.set_caption('Qraft')
+        pygame.display.set_caption(self.name)
         pygame.display.set_icon(pygame.image.load('qraft/assets/icon.png'))
 
         glClearDepth(1.0)
@@ -25,12 +32,14 @@ class Scene:
 
     
     def render(self, camera, light_vector):
-        position = -camera.position.morphed(*camera.unit_vectors)
-        unit_vectors = camera.unit_vectors
-        relative_light_vector = light_vector.morphed(*camera.unit_vectors)
+        relative_light_vector = light_vector.demorphed(*camera.unit_vectors)
 
         glBegin(GL_TRIANGLES)
-        [obj.render(position, unit_vectors, relative_light_vector) for obj in self.objects]
+        for obj in self.objects:
+            obj.render(
+                (obj.position - camera.position).demorphed(*camera.unit_vectors),# - obj.position.morphed(*camera.unit_vectors),
+                UNIT_QUATERNIONS.demorphed(*camera.unit_vectors),
+                relative_light_vector)
         glEnd()
 
     def set_FOV(self, FOV):
@@ -49,7 +58,7 @@ class Camera:
         self.field_of_view = field_of_view
     
     def translate_rel(self, offset):
-        self.velocity += offset.demorphed(*self.unit_vectors)
+        self.position += 4*offset#.demorphed(*self.unit_vectors)
 
     def translate_abs(self, offset):
         self.position += offset
@@ -59,15 +68,15 @@ class Camera:
 
     def update(self, mouse, keyboard):
 
-        self.rotate(Q([0, 1, 0]), mouse.delta_position[0]/500)
-        self.rotate(Q([1, 0, 0]), mouse.delta_position[1]/500)
+        self.rotate(self.unit_vectors[1], -mouse.delta_position[0]/600)
+        self.rotate(self.unit_vectors[0], -mouse.delta_position[1]/600)
         
-        if keyboard.state[pygame.K_w]: self.translate_rel(Q([0, 0, -1])*0.08)
-        if keyboard.state[pygame.K_s]: self.translate_rel(Q([0, 0, 1])*0.08)
-        if keyboard.state[pygame.K_a]: self.translate_rel(Q([-1, 0, 0])*0.08)
-        if keyboard.state[pygame.K_d]: self.translate_rel(Q([1, 0, 0])*0.08)
-        if keyboard.state[pygame.K_SPACE]: self.translate_rel(Q([0, 1, 0])*0.08)
-        if keyboard.state[pygame.K_LSHIFT]: self.translate_rel(Q([0, -1, 0])*0.08)
+        if keyboard.state[pygame.K_w]: self.translate_rel(-self.unit_vectors[2]*0.03)
+        if keyboard.state[pygame.K_s]: self.translate_rel(self.unit_vectors[2]*0.03)
+        if keyboard.state[pygame.K_a]: self.translate_rel(-self.unit_vectors[0]*0.03)
+        if keyboard.state[pygame.K_d]: self.translate_rel(self.unit_vectors[0]*0.03)
+        if keyboard.state[pygame.K_SPACE]: self.translate_rel(self.unit_vectors[1]*0.03)
+        if keyboard.state[pygame.K_LSHIFT]: self.translate_rel(-self.unit_vectors[1]*0.03)
 
         self.position += self.velocity / 60
 

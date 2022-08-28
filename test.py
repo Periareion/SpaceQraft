@@ -16,8 +16,28 @@ def main(width, height, FPS=60):
 
     light_vector = Q([1,-1.5,-2])
 
+    def colored_amogus(color):
+        
+        # Make video with Pixies' song "Allison".
+        amogus = gm.Group([gm.Group([
+            gm.Cuboid((0.65, 0, 0),(0.65, 0.5, 0.55),color),
+            gm.Cuboid((0.5, -0.3, 0),(0.5, 0.2, 0.4),color),
+            gm.Cuboid((0.3, 0, 0.15),(0.5, 0.4, 0.25),color),
+            gm.Cuboid((0.3, 0, -0.15),(0.5, 0.4, 0.25),color),
+            gm.Cuboid((0.7, 0.25, 0),(0.3, 0.2, 0.4),(0.3,0.7,0.9)),
+            gm.Cuboid((0.8, 0.25, -0.1),(0.05, 0.21, 0.1),(0.8,0.9,1))],
+            position=[-0.5,0,0])])
+        return amogus
+        
+    amogi = gm.Group([
+        gm.Group([(colored_amogus((0.85,0.9,0.2)))], [0,0,1], UNIT_QUATERNIONS.copy().rotate(qj, math.pi/2)),
+        gm.Group([(colored_amogus((0.1,0.9,0.2)))], [0,0,-1]),
+        gm.Group([(colored_amogus((0.9,0.1,0.2)))], [0,0,-2]),
+        gm.Group([(colored_amogus((0.1,0.1,0.9)))], [0,0,0], UNIT_QUATERNIONS.copy().rotate(qk, math.pi/2)),
+        ])
+
     sphere = gm.Group([gm.Sphere(radius=1)])
-    scene.objects = [sphere]
+    scene.objects = [amogi]
 
     running = True
     while running:

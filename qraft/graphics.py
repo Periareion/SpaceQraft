@@ -1,15 +1,10 @@
 
 import math
 
-from OpenGL.GL import *
-from OpenGL.GLU import *
+from OpenGL.GL import glBegin, glEnd, glColor3fv, glVertex3fv, glLineWidth, GL_LINES, GL_TRIANGLES, GLfloat
 
-try:
-    from .aquaternion import *
-    from . import colors
-except ImportError:
-    from aquaternion import *
-    import colors
+from .aquaternion import *
+
 
 def drop_vertex(position, color):
     glColor3fv(color)
@@ -24,7 +19,7 @@ def draw_line(p1, p2, color, width=1):
     glEnd()
 
 
-def triangle_light_factor(vertices, light_vector, ambient_light):
+def triangle_light_factor1(vertices, light_vector, ambient_light):
     if len(vertices) != 3:
         raise IndexError(f"Need 3 vertices to make a three dimensional normal vector.")
     p1, p2, p3 = vertices
@@ -33,7 +28,7 @@ def triangle_light_factor(vertices, light_vector, ambient_light):
     anomaly = 2 * math.asin(chord / 2)
     return ambient_light + (1 - ambient_light)*max(0, math.cos(anomaly))
 
-def triangle_light_factor1(vertices: tuple[Quaternion], light_vector: Quaternion, ambient_light: float):
+def triangle_light_factor(vertices: tuple[Quaternion], light_vector: Quaternion, ambient_light: float):
     light_vector.normalize()
     if len(vertices) != 3:
         raise IndexError(f"Need 3 vertices to make a three dimensional normal vector.")

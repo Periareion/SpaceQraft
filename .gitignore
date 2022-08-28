@@ -1,1 +1,3 @@
-/Qraft.code-workspace
+/build
+/dist
+/qraft.egg-info
