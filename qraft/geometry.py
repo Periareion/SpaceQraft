@@ -1,8 +1,13 @@
 
 import math
 
-from .aquaternion import *
+import aquaternion as aq
+
 from . import graphics
+
+
+# The Polygon class isn't used at the moment
+# TODO: find a use for the Polygon class
 
 class Polygon:
     
@@ -15,7 +20,7 @@ class Polygon:
     def check_vertices(cls, n, vertices):
         if len(vertices) != n:
             raise IndexError(f"Polygon must have {n} vertices. ({vertices})")
-        if not (False not in [isinstance(x, Quaternion) for x in vertices]):
+        if not (False not in [isinstance(x, aq.Quaternion) for x in vertices]):
             raise TypeError("Vertices must be Quaternion instances.")
 
 
@@ -36,10 +41,10 @@ class Tetragon(Polygon):
 class Mesh:
     
     def __init__(self, position):
-        self.position = Q(position)
+        self.position = aq.Q(position)
 
-    def render(self, position=Q([0,0,0]), unit_vectors=UNIT_QUATERNIONS.copy(), light_vector=Q([0,0,0])):
-        qvertices = QA([(vertex + self.position).morphed(*unit_vectors) for vertex in self.qvertices])
+    def render(self, position=aq.Q([0,0,0]), unit_vectors=aq.UV.copy(), light_vector=aq.Q([0,0,0])):
+        qvertices = aq.QuaternionArray([(vertex + self.position).morphed(*unit_vectors) for vertex in self.qvertices])
         for face in self.faces:
             match len(face):
                 case 3:
@@ -79,12 +84,18 @@ class Cuboid(Mesh):
         self.volume = math.prod(size)
         self.color = color
         
-        self.qvertices = QuaternionArray(
-            [0.5*Q(vertex).morphed(self.size[0]*qi, self.size[1]*qj, self.size[2]*qk) for vertex in self.vertices]
+        self.qvertices = aq.QuaternionArray(
+            [0.5*aq.Q(vertex).morphed(self.size[0]*aq.qi, self.size[1]*aq.qj, self.size[2]*aq.qk) for vertex in self.vertices]
         )
 
 
 class Sphere(Mesh):
+    """
+    Generates a UV sphere mesh
+    
+    vertical_n: number of vertical points (including poles)
+    horizontal_n: number of horizontal points
+    """
 
     def __init__(self,
                  position=(0,0,0),
@@ -101,8 +112,8 @@ class Sphere(Mesh):
 
         self.vertices = Sphere.get_vertices(radius, vertical_n, horizontal_n)
         self.faces = Sphere.get_faces(vertical_n, horizontal_n)
-        self.qvertices = QuaternionArray(
-            [Q(vertex) for vertex in self.vertices]
+        self.qvertices = aq.QuaternionArray(
+            [aq.Q(vertex) for vertex in self.vertices]
         )
 
     @classmethod
@@ -195,18 +206,17 @@ class Sphere(Mesh):
 
         return faces
 
-#print(Sphere.vertex_number(8, 8, 7, 0))
 
 # Groups are for putting together Mesh objects
 class Group:
     
     def __init__(self, shapes=None, position=None, unit_vectors=None):
         self.shapes = [] if shapes is None else shapes
-        self.position = Q([0,0,0]) if position is None else Q(position)
-        self.unit_vectors = UNIT_QUATERNIONS.copy() if unit_vectors is None else unit_vectors
+        self.position = aq.Q([0,0,0]) if position is None else aq.Q(position)
+        self.unit_vectors = aq.UV.copy() if unit_vectors is None else unit_vectors
     
-    def render(self, position=Q([0,0,0]), unit_vectors=None, light_vector=Q([0,0,0])):
-        unit_vectors = UNIT_QUATERNIONS.copy() if unit_vectors is None else unit_vectors
+    def render(self, position=aq.Q([0,0,0]), unit_vectors=None, light_vector=aq.Q([0,0,0])):
+        unit_vectors = aq.UV.copy() if unit_vectors is None else unit_vectors
         for shape in self.shapes:
             if isinstance(shape, Mesh):
                 shape.render(position + self.position.morphed(*unit_vectors), self.unit_vectors.morphed(*unit_vectors), light_vector)

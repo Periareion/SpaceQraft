@@ -39,7 +39,7 @@ def main(width, height, FPS=60):
 
     scene = env.Scene('Gravity', width, height, (0.05, 0.05, 0.1, 1))
 
-    camera = env.Camera(Q([0,0,2]), UNIT_QUATERNIONS.copy(), 60)
+    camera = env.Camera(Q([0,0,2]), UV.copy(), 60)
     mouse = env.Mouse(width, height)
     keyboard = env.Keyboard()
 
@@ -48,8 +48,8 @@ def main(width, height, FPS=60):
     light_vector = Q([-1,-1,-1])
 
     sun = Planet("Sun", 1, Q([0,0,0]), Q([0,0,0]), 0.1, (0.8, 0.7, 0.204))
-    earth = Planet("Earth", 10**-10, Q([1,0,0]), Q([0,0.7,0]).rotate(qi, 0*math.pi/6), 0.03, (0.145, 0.439, 0.804))
-    mars = Planet("Earth", 10**-10, Q([1.2,0,0]), Q([0,0.8,0]).rotate(qi, 0*math.pi/6), 0.03, (0.804, 0.239, 0.145))
+    earth = Planet("Earth", 10**-10, Q([1,0,0]), Q([0,0.7,0]).rotate(qi, 0*pi/6), 0.03, (0.145, 0.439, 0.804))
+    mars = Planet("Earth", 10**-10, Q([1.2,0,0]), Q([0,0.8,0]).rotate(qi, 0*pi/6), 0.03, (0.804, 0.239, 0.145))
     scene.objects = [sun, mars]
 
     running = True
@@ -71,7 +71,7 @@ def main(width, height, FPS=60):
         #camera.unit_vectors = QA([x, qk, x*qk])
         z = (earth.position - sun.position).normalized
         x = (earth.velocity.normalized*z).qvector/z
-        camera.unit_vectors = QA([x, z*x, z])
+        camera.unit_vectors = UnitVectors([x, z*x, z])
 
         #print(camera.unit_vectors)
 

@@ -14,4 +14,5 @@ from . import graphics
 from . import geometry as gm
 from . import environment as env
 
-from .aquaternion import *
+from aquaternion import *
+import aquaternion as aq

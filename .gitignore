@@ -1,3 +1,4 @@
-/build
-/dist
-/qraft.egg-info
+build
+dist
+qraft.egg-info
+qraft/old

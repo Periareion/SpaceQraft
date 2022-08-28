@@ -6,7 +6,7 @@ from OpenGL.GL import glClearDepth, glDepthFunc, glEnable, glClearColor, glClear
 from OpenGL.GL import GL_LESS, GL_DEPTH_TEST, GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_TRIANGLES, GL_PROJECTION, GL_MODELVIEW
 from OpenGL.GLU import gluPerspective
 
-from .aquaternion import *
+import aquaternion as aq
 
 class Scene:
 
@@ -32,13 +32,13 @@ class Scene:
 
     
     def render(self, camera, light_vector):
-        relative_light_vector = light_vector.demorphed(*camera.unit_vectors)
+        relative_light_vector = light_vector.unmorphed(*camera.unit_vectors)
 
         glBegin(GL_TRIANGLES)
         for obj in self.objects:
             obj.render(
-                (obj.position - camera.position).demorphed(*camera.unit_vectors),# - obj.position.morphed(*camera.unit_vectors),
-                UNIT_QUATERNIONS.demorphed(*camera.unit_vectors),
+                (obj.position - camera.position).unmorphed(*camera.unit_vectors),# - obj.position.morphed(*camera.unit_vectors),
+                aq.UNIT_QUATERNIONS.unmorphed(*camera.unit_vectors),
                 relative_light_vector)
         glEnd()
 
@@ -53,12 +53,12 @@ class Camera:
 
     def __init__(self, position, unit_vectors, field_of_view):
         self.position = position
-        self.velocity = Q([0,0,0])
+        self.velocity = aq.Q([0,0,0])
         self.unit_vectors = unit_vectors
         self.field_of_view = field_of_view
     
     def translate_rel(self, offset):
-        self.position += 4*offset#.demorphed(*self.unit_vectors)
+        self.position += 4*offset#.unmorphed(*self.unit_vectors)
 
     def translate_abs(self, offset):
         self.position += offset
@@ -67,7 +67,7 @@ class Camera:
         self.unit_vectors.rotate(axis, angle)
 
     def update(self, mouse, keyboard):
-
+        print(self.unit_vectors)
         self.rotate(self.unit_vectors[1], -mouse.delta_position[0]/600)
         self.rotate(self.unit_vectors[0], -mouse.delta_position[1]/600)
         
