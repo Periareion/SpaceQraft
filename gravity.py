@@ -13,7 +13,7 @@ class Planet:
         self.radius = radius
         self.color = color
 
-        self.sphere = gm.Group([gm.Sphere(radius=radius, color=color, vertical_n=6, horizontal_n=9)])
+        self.sphere = gm.Group([gm.Cuboid(size=(0.1,0.1,0.1))])#gm.Sphere(radius=radius, color=color, vertical_n=12, horizontal_n=15)])
 
     def update_position(self, dt, FPS=60):
         self.position += self.velocity * dt / FPS
@@ -45,11 +45,11 @@ def main(width, height, FPS=60):
 
     scene.set_FOV(camera.field_of_view)
 
-    light_vector = Q([-1,-1,-1])
+    light_vector = Q([-1,-2,-3])
 
     sun = Planet("Sun", 1, Q([0,0,0]), Q([0,0,0]), 0.1, (0.8, 0.7, 0.204))
-    earth = Planet("Earth", 10**-10, Q([1,0,0]), Q([0,0.7,0]).rotate(qi, 0*pi/6), 0.03, (0.145, 0.439, 0.804))
-    mars = Planet("Earth", 10**-10, Q([1.2,0,0]), Q([0,0.8,0]).rotate(qi, 0*pi/6), 0.03, (0.804, 0.239, 0.145))
+    earth = Planet("Earth", 10**-10, Q([1,0,0]), Q([0,0.7,0]).rotate(qi, 1), 0.03, (0.145, 0.439, 0.804))
+    mars = Planet("Mars", 10**-10, Q([1.2,0,0]), Q([0,0.8,0]).rotate(qi, 0), 0.03, (0.804, 0.239, 0.145))
     scene.objects = [sun, mars]
 
     running = True

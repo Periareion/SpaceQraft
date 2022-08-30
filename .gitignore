@@ -2,3 +2,4 @@ build
 dist
 qraft.egg-info
 qraft/old
+qraft/__pycache__

@@ -67,7 +67,6 @@ class Camera:
         self.unit_vectors.rotate(axis, angle)
 
     def update(self, mouse, keyboard):
-        print(self.unit_vectors)
         self.rotate(self.unit_vectors[1], -mouse.delta_position[0]/600)
         self.rotate(self.unit_vectors[0], -mouse.delta_position[1]/600)
         

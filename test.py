@@ -8,7 +8,7 @@ def main(width, height, FPS=60):
 
     scene = env.Scene('Qraft', width, height)
 
-    camera = env.Camera(Q([0, 0, 3]), UNIT_QUATERNIONS.copy(), 60)
+    camera = env.Camera(Q([0, 0, 3]), UV.copy(), 60)
     mouse = env.Mouse(width, height)
     keyboard = env.Keyboard()
 
@@ -30,10 +30,17 @@ def main(width, height, FPS=60):
         return amogus
         
     amogi = gm.Group([
-        gm.Group([(colored_amogus((0.85,0.9,0.2)))], [0,0,1], UNIT_QUATERNIONS.copy().rotate(qj, math.pi/2)),
+        gm.Group([(colored_amogus((0.85,0.9,0.2)))], [0,0,1], UV.copy().rotate(qj, math.pi/2)),
         gm.Group([(colored_amogus((0.1,0.9,0.2)))], [0,0,-1]),
         gm.Group([(colored_amogus((0.9,0.1,0.2)))], [0,0,-2]),
-        gm.Group([(colored_amogus((0.1,0.1,0.9)))], [0,0,0], UNIT_QUATERNIONS.copy().rotate(qk, math.pi/2)),
+        gm.Group([(colored_amogus((0.1,0.1,0.9)))], [0,0,0], UV.copy().rotate(qk, math.pi/2)),
+        ])
+    
+    amogi = gm.Group([
+        gm.Group([(colored_amogus((0.85,0.9,0.2)))], [0,0,1], UV.copy().rotate(qj, math.pi/2)),
+        gm.Group([(colored_amogus((0.1,0.9,0.2)))], [0,0,-1]),
+        gm.Group([(colored_amogus((0.9,0.1,0.2)))], [0,0,-2]),
+        gm.Group([(colored_amogus((0.1,0.1,0.9)))], [0,0,0], UV.copy().rotate(qk, math.pi/2)),
         ])
 
     sphere = gm.Group([gm.Sphere(radius=1)])
