@@ -70,13 +70,15 @@ def main(width, height, FPS=60):
         #x = earth.velocity.normalized
         #camera.unit_vectors = QA([x, qk, x*qk])
         z = (earth.position - sun.position).normalized
-        x = (earth.velocity.normalized*z).qvector/z
+        x = (earth.velocity.normalized*z).qvector3/z
         camera.unit_vectors = UnitVectors([x, z*x, z])
 
         #print(camera.unit_vectors)
 
-        [planet.update_velocity(scene.objects, dt, FPS) for planet in [sun, earth, mars]]
-        [planet.update_position(dt, FPS) for planet in [sun, earth, mars]]
+        for planet in [sun, earth, mars]:
+            planet.update_velocity(scene.objects, dt, FPS)
+        for planet in [sun, earth, mars]:
+            planet.update_position(dt, FPS)
 
         scene.update()
         scene.render(camera, light_vector)

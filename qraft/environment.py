@@ -104,9 +104,8 @@ class Mouse:
 
         if self.focused:
             temp_position = pygame.mouse.get_pos()
-            self.delta_position = temp_position[0]-self.position[0], temp_position[1]-self.position[1]
+            self.delta_position = temp_position[0]-self.half_width, temp_position[1]-self.half_height
             pygame.mouse.set_pos((self.half_width, self.half_height))
-            self.position = (self.half_width, self.half_height)
 
         elif not self.focused:
             self.position = pygame.mouse.get_pos()

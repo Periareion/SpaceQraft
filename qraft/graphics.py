@@ -23,7 +23,7 @@ def triangle_light_factor1(vertices, light_vector, ambient_light):
     if len(vertices) != 3:
         raise IndexError(f"Need 3 vertices to make a three dimensional normal vector.")
     p1, p2, p3 = vertices
-    normal_vector = ((p2 - p1)*(p3 - p2)).qvector.normalized
+    normal_vector = ((p2 - p1)*(p3 - p2)).qvector3.normalized
     chord = (light_vector.normalized + normal_vector).norm
     anomaly = 2 * math.asin(chord / 2)
     return ambient_light + (1 - ambient_light)*max(0, math.cos(anomaly))
@@ -33,7 +33,7 @@ def triangle_light_factor(vertices: tuple[aq.Quaternion], light_vector: aq.Quate
     if len(vertices) != 3:
         raise IndexError(f"Need 3 vertices to make a three dimensional normal vector.")
     p1, p2, p3 = vertices
-    normal_vector = ((p2 - p1)*(p3 - p2)).qvector.normalized
+    normal_vector = ((p2 - p1)*(p3 - p2)).qvector3.normalized
     return ambient_light + (1 - ambient_light)*max(0, aq.Quaternion.dot(-normal_vector, light_vector))
 
 
