@@ -2,8 +2,8 @@
 import pygame
 from pygame.locals import DOUBLEBUF, OPENGL
 
-from OpenGL.GL import glClearDepth, glDepthFunc, glEnable, glClearColor, glClear, glBegin, glEnd, glMatrixMode, glLoadIdentity
-from OpenGL.GL import GL_LESS, GL_DEPTH_TEST, GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_TRIANGLES, GL_PROJECTION, GL_MODELVIEW
+from OpenGL.GL import glClearDepth, glDepthFunc, glEnable, glClearColor, glClear, glBegin, glEnd, glMatrixMode, glLoadIdentity, glColor3fv, glVertex3fv
+from OpenGL.GL import GL_LESS, GL_DEPTH_TEST, GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_TRIANGLES, GL_LINES, GL_PROJECTION, GL_MODELVIEW
 from OpenGL.GLU import gluPerspective
 
 import aquaternion as aq
@@ -25,6 +25,7 @@ class Scene:
         glEnable(GL_DEPTH_TEST)
 
         self.objects = []
+        self.lines = []
 
     def update(self):
         glClearColor(*self.background_color)
@@ -42,10 +43,20 @@ class Scene:
                 relative_light_vector)
         glEnd()
 
+        for line in self.lines:
+            relative_vertices = [(vertex - camera.position).unmorphed(*camera.unit_vectors) for vertex in line[0]]
+            glBegin(GL_LINES)
+            glColor3fv(line[1])
+            n = len(relative_vertices)
+            for i in range(n-1):
+                glVertex3fv(relative_vertices[i].vector3)
+                glVertex3fv(relative_vertices[i+1].vector3)
+            glEnd()
+
     def set_FOV(self, FOV):
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        gluPerspective(FOV, self.width/self.height, 0.1, 50.0)
+        gluPerspective(FOV, self.width/self.height, 0.1, 200.0)
         glMatrixMode(GL_MODELVIEW)
 
 
@@ -58,7 +69,7 @@ class Camera:
         self.field_of_view = field_of_view
     
     def translate_rel(self, offset):
-        self.position += 4*offset#.unmorphed(*self.unit_vectors)
+        self.position += offset*self.position.norm**0.7
 
     def translate_abs(self, offset):
         self.position += offset
