@@ -13,7 +13,7 @@ class Planet:
         self.radius = radius
         self.color = color
 
-        self.sphere = gm.Group([gm.Cuboid(size=(0.1,0.1,0.1))])#gm.Sphere(radius=radius, color=color, vertical_n=12, horizontal_n=15)])
+        self.sphere = gm.Group([gm.Sphere(radius=radius, color=color, vertical_n=10, horizontal_n=10)])
 
     def update_position(self, dt, FPS=60):
         self.position += self.velocity * dt / FPS
@@ -87,13 +87,11 @@ def main(width, height, FPS=60):
         clock.tick(FPS); fps = clock.get_fps()
         pygame.display.set_caption(f'Gravity (FPS: {fps:.2f}, FOV: {camera.field_of_view})')
 
-        if keyboard.downs[pygame.K_F2]: buffer = glReadPixels(0, 0, *scene.window.get_size(), GL_RGBA, GL_UNSIGNED_BYTE)
+        if keyboard.downs[pygame.K_F2]: buffer = utils.get_buffer()
 
         pygame.display.flip()
         
-        if keyboard.downs[pygame.K_F2]: pygame.image.save(
-            pygame.image.fromstring(buffer, scene.window.get_size(), "RGBA"),
-            f"{datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}.jpg")
+        if keyboard.downs[pygame.K_F2]: utils.save_screenshot(scene, buffer)
 
     pygame.quit()
 

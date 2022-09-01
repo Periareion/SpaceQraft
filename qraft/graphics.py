@@ -43,10 +43,9 @@ def draw_triangle(vertices=[aq.Q([-5,-5,0]), aq.Q([5,-5,0]), aq.Q([0,5,0])], col
     
     light_factor = triangle_light_factor(vertices, light_vector, 0.5)
     
+    glColor3fv(tuple(map(lambda x: x*light_factor, color)))
     for qvector in vertices:
-        drop_vertex(qvector.vector3, tuple(map(lambda x: x*light_factor, color)))
-    
-    # Should return Triangle instance from shapes.py
+        glVertex3fv(qvector.vector3)
 
 
 def draw_tetragon(vertices, color=(1,1,1), light_vector=aq.Q([0,0,1])):

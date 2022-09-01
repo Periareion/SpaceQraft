@@ -13,6 +13,7 @@ from OpenGL.GLU import *
 from . import graphics
 from . import geometry as gm
 from . import environment as env
+from . import utils
 
 from aquaternion import *
 import aquaternion as aq
