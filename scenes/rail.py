@@ -27,7 +27,7 @@ def main(width, height, FPS=60):
         scene.objects.append(star.model)
     
     for planet in planets:
-        planet.model = gm.Sphere(radius=6e-4*(planet.radius**0.3), color=planet.color, vertical_n = 4, horizontal_n = 6)
+        planet.model = gm.Sphere(radius=2e-4*(planet.radius**0.4), color=planet.color, vertical_n = 4, horizontal_n = 6)
         scene.objects.append(planet.model)
         
         planet.path_points = planet.orbit.get_path_points(60, 2 / sm.constants.AU)
@@ -63,7 +63,7 @@ def main(width, height, FPS=60):
         clock.tick(FPS); fps = clock.get_fps()
         pygame.display.set_caption(f'{scene.name} (FPS: {fps:.2f}, FOV: {camera.field_of_view})')
 
-        if keyboard.downs[pygame.K_F2]: buffer = utils.get_buffer()
+        if keyboard.downs[pygame.K_F2]: buffer = utils.get_buffer(scene)
 
         pygame.display.flip()
         

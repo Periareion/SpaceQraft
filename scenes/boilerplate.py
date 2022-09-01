@@ -39,7 +39,7 @@ def main(width, height, FPS=60):
         clock.tick(FPS); fps = clock.get_fps()
         pygame.display.set_caption(f'{scene.name} (FPS: {fps:.2f}, FOV: {camera.field_of_view})')
 
-        if keyboard.downs[pygame.K_F2]: buffer = utils.get_buffer()
+        if keyboard.downs[pygame.K_F2]: buffer = utils.get_buffer(scene)
 
         pygame.display.flip()
         

@@ -10,4 +10,4 @@ def get_buffer(scene):
 def save_screenshot(scene, buffer):
     pygame.image.save(
         pygame.image.fromstring(buffer, scene.window.get_size(), "RGBA"),
-        f"{datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}.jpg")
+        f"{datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}.png")
