@@ -53,12 +53,14 @@ def main(width, height, FPS=60):
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 running = False
             if event.type == pygame.MOUSEWHEEL:
-                camera.field_of_view += -event.y
+                camera.field_of_view -= event.y
                 scene.set_FOV(camera.field_of_view)
 
         mouse.update()
         keyboard.update()
         camera.update(mouse, keyboard)
+        
+        if keyboard.downs[pygame.K_f]: mouse.toggle_focus = True
 
         scene.update()
         scene.render(camera, light_vector)

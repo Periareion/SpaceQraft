@@ -44,7 +44,9 @@ class Scene:
         glEnd()
 
         for line in self.lines:
-            relative_vertices = [(vertex - camera.position).unmorphed(*camera.unit_vectors) for vertex in line[0]]
+            relative_vertices = (line[0] + (-camera.position)).unmorphed(*camera.unit_vectors)
+            #relative_vertices.unmorphed(*camera.unit_vectors)
+            #relative_vertices = [(vertex - camera.position) for vertex in line[0]]
             glBegin(GL_LINES)
             glColor3fv(line[1])
             n = len(relative_vertices)
@@ -69,7 +71,7 @@ class Camera:
         self.field_of_view = field_of_view
     
     def translate_rel(self, offset):
-        self.position += offset*self.position.norm**0.7
+        self.position += offset.morphed(*self.unit_vectors)*self.position.norm**0.7
 
     def translate_abs(self, offset):
         self.position += offset
@@ -81,12 +83,15 @@ class Camera:
         self.rotate(self.unit_vectors[1], -mouse.delta_position[0]/600)
         self.rotate(self.unit_vectors[0], -mouse.delta_position[1]/600)
         
-        if keyboard.state[pygame.K_w]: self.translate_rel(-self.unit_vectors[2]*0.03)
-        if keyboard.state[pygame.K_s]: self.translate_rel(self.unit_vectors[2]*0.03)
-        if keyboard.state[pygame.K_a]: self.translate_rel(-self.unit_vectors[0]*0.03)
-        if keyboard.state[pygame.K_d]: self.translate_rel(self.unit_vectors[0]*0.03)
-        if keyboard.state[pygame.K_SPACE]: self.translate_rel(self.unit_vectors[1]*0.03)
-        if keyboard.state[pygame.K_LSHIFT]: self.translate_rel(-self.unit_vectors[1]*0.03)
+        if keyboard.state[pygame.K_q]: self.unit_vectors.rotate(self.unit_vectors[2], 0.05)
+        if keyboard.state[pygame.K_e]: self.unit_vectors.rotate(self.unit_vectors[2], -0.05)
+        
+        if keyboard.state[pygame.K_w]: self.translate_rel(aq.Q([0, 0, -1])*0.03)
+        if keyboard.state[pygame.K_s]: self.translate_rel(aq.Q([0, 0, 1])*0.03)
+        if keyboard.state[pygame.K_a]: self.translate_rel(aq.Q([-1, 0, 0])*0.03)
+        if keyboard.state[pygame.K_d]: self.translate_rel(aq.Q([1, 0, 0])*0.03)
+        if keyboard.state[pygame.K_SPACE]: self.translate_rel(aq.Q([0, 1, 0])*0.03)
+        if keyboard.state[pygame.K_LSHIFT]: self.translate_rel(aq.Q([0, -1, 0])*0.03)
 
         self.position += self.velocity / 60
 
@@ -97,7 +102,11 @@ class Mouse:
         self.half_width, self.half_height = width // 2, height // 2
 
         self.pressed = pygame.mouse.get_pressed(5)
+        
+        self.toggle_focus = False
         self.focused = False
+        self.position = None
+        self.delta_position = (0, 0)
         self.update()
     
     def update(self):
@@ -107,20 +116,31 @@ class Mouse:
         self.upclicks = tuple((self.pressed[i] and not new_pressed[i] for i in range(5)))
         self.pressed = new_pressed
 
-        if self.downclicks[1]:
-            self.focused = not self.focused
-            pygame.mouse.get_rel()
-            if self.focused: self.hide()
-            else:            self.show()
+        if pygame.mouse.get_focused():
+            if self.downclicks[1]: self.toggle_focus = True
+                
+            if self.toggle_focus:
+                self.focused = not self.focused
+                if self.focused: self.hide()
+                else:            self.show()
 
-        if self.focused:
-            temp_position = pygame.mouse.get_pos()
-            self.delta_position = temp_position[0]-self.half_width, temp_position[1]-self.half_height
-            pygame.mouse.set_pos((self.half_width, self.half_height))
+                self.toggle_focus = False
+                self.position = self.half_width, self.half_height
+                pygame.mouse.set_pos(self.position)
 
-        elif not self.focused:
-            self.position = pygame.mouse.get_pos()
-            self.delta_position = pygame.mouse.get_rel()
+            if self.focused:
+                new_position = pygame.mouse.get_pos()
+                self.delta_position = new_position[0]-self.position[0], new_position[1]-self.position[1]
+                pygame.mouse.set_pos(self.position)
+
+            else:
+                if self.position is None:
+                    self.position = pygame.mouse.get_pos()
+                new_position = pygame.mouse.get_pos()
+                self.delta_position = new_position[0]-self.position[0], new_position[1]-self.position[1]
+                self.position = new_position
+        else:
+            self.position = None
 
     def hide(self):
         pygame.mouse.set_visible(False)

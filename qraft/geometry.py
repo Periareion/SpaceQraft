@@ -42,6 +42,7 @@ class Mesh:
     
     def __init__(self, position):
         self.position = aq.Q(position)
+        self.volume = 0
 
     def render(self, position=aq.Q([0,0,0]), unit_vectors=aq.UV.copy(), light_vector=aq.Q([0,0,0])):
         qvertices = aq.QuaternionArray([(vertex + self.position).morphed(*unit_vectors) for vertex in self.qvertices])
@@ -214,6 +215,7 @@ class Group:
         self.shapes = [] if shapes is None else shapes
         self.position = aq.Q([0,0,0]) if position is None else aq.Q(position)
         self.unit_vectors = aq.UV.copy() if unit_vectors is None else unit_vectors
+        self.volume = sum([shape.volume for shape in self.shapes])
     
     def render(self, position=aq.Q([0,0,0]), unit_vectors=None, light_vector=aq.Q([0,0,0])):
         unit_vectors = aq.UV.copy() if unit_vectors is None else unit_vectors

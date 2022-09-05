@@ -23,7 +23,7 @@ def main(width, height, FPS=60):
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 running = False
             if event.type == pygame.MOUSEWHEEL:
-                camera.field_of_view += -event.y
+                camera.field_of_view -= event.y
                 scene.set_FOV(camera.field_of_view)
 
         mouse.update()
