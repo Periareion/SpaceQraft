@@ -1,13 +1,9 @@
 
-import datetime
+import math
 
-import pygame
-from OpenGL.GL import glReadPixels, GL_RGBA, GL_UNSIGNED_BYTE
+def default(default_value, value):
+    return default_value if value is None else value
 
-def get_buffer(scene):
-    return glReadPixels(0, 0, *scene.window.get_size(), GL_RGBA, GL_UNSIGNED_BYTE)
 
-def save_screenshot(scene, buffer):
-    pygame.image.save(
-        pygame.image.fromstring(buffer, scene.window.get_size(), "RGBA"),
-        f"{datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}.png")
+def pulse(t, P=1, A=1, y=0, FPS=60):
+    return y + A*math.sin(t/FPS*math.tau/P)

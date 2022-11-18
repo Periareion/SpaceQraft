@@ -1,83 +1,121 @@
 
-import math
+import pygame
 
-from OpenGL.GL import glBegin, glEnd, glColor3fv, glVertex3fv, glLineWidth, GL_LINES, GL_TRIANGLES, GLfloat
+from aquaternion import *
 
-import aquaternion as aq
-
-
-def drop_vertex(position, color):
-    glColor3fv(color)
-    glVertex3fv(position)
+from . import geometry
 
 
-def draw_line(p1, p2, color, width=1):
-    glLineWidth(GLfloat(width))
-    glBegin(GL_LINES)
-    drop_vertex(p1, color)
-    drop_vertex(p2, color)
-    glEnd()
+class Edge:
+    
+    def __init__(self, vertex1: Quaternion, vertex2: Quaternion, color):
+        self.vertex1 = vertex1
+        self.vertex2 = vertex2
+        self.color = color
 
 
-def triangle_light_factor1(vertices, light_vector, ambient_light):
-    if len(vertices) != 3:
-        raise IndexError(f"Need 3 vertices to make a three dimensional normal vector.")
-    p1, p2, p3 = vertices
-    normal_vector = ((p2 - p1)*(p3 - p2)).qvector3.normalized
-    chord = (light_vector.normalized + normal_vector).norm
-    anomaly = 2 * math.asin(chord / 2)
-    return ambient_light + (1 - ambient_light)*max(0, math.cos(anomaly))
-
-def triangle_light_factor(vertices: tuple[aq.Quaternion], light_vector: aq.Quaternion, ambient_light: float):
+def light_factor(surface_normal: Quaternion, light_vector: Quaternion = Q([0,0,1]), ambient_light: float = 0.3):
     light_vector.normalize()
-    if len(vertices) != 3:
-        raise IndexError(f"Need 3 vertices to make a three dimensional normal vector.")
-    p1, p2, p3 = vertices
-    normal_vector = ((p2 - p1)*(p3 - p2)).qvector3.normalized
-    return ambient_light + (1 - ambient_light)*max(0, aq.Quaternion.dot(-normal_vector, light_vector))
+    return ambient_light + (1 - ambient_light)*max(0, Quaternion.dot(-surface_normal, light_vector))
 
 
-def draw_triangle(vertices=[aq.Q([-5,-5,0]), aq.Q([5,-5,0]), aq.Q([0,5,0])], color=(1,1,1), light_vector=aq.Q([0,0,0])):
-    if len(vertices) != 3:
-        raise IndexError(f"Can't draw triangle with {len(vertices)} vertices.")
+class Triangle:
     
-    light_factor = triangle_light_factor(vertices, light_vector, 0.5)
-    
-    glColor3fv(tuple(map(lambda x: x*light_factor, color)))
-    for qvector in vertices:
-        glVertex3fv(qvector.vector3)
-
-
-def draw_tetragon(vertices, color=(1,1,1), light_vector=aq.Q([0,0,1])):
-    if len(vertices) != 4:
-        raise IndexError(f"Can't draw tetragon with {len(vertices)} vertices.")
-    
-    draw_triangle([vertices[0], vertices[1], vertices[2]], color, light_vector)
-    draw_triangle([vertices[0], vertices[2], vertices[3]], color, light_vector)
-    
-    # Tetragons are added to the DrawBuffer as two triangles
-
-
-def draw_polygon():
-    pass
-
-
-class DrawBuffer:
-    
-    def __init__(self):
-        self.lines = [] # ((p1,p2), color, width)
-        self.triangles = [] # ((p1,p2,p3), color_illuminated)
+    def __init__(self, vertices: list[Quaternion], projected_vertices: list[tuple[int, int]], focal_vector, color, light_vector: Quaternion = Q([1,2,3])):
+        self.vertices = vertices
+        self.middle_point = sum(vertices) / 3
+        self.distance_to_camera = (self.middle_point + focal_vector).norm
+        self.vertex_distance_sum = sum([(vertex + focal_vector).norm for vertex in vertices])
         
-    def draw(self):
+        self.normal = Quaternion.cross(vertices[1] - vertices[0], vertices[2] - vertices[0]).normalized
+        self.light_factor = light_factor(self.normal, light_vector)
         
-        if self.lines:
-            glBegin(GL_LINES)
-            for line in self.lines:
-                draw_line(line)
-            glEnd()
+        self.color = pygame.Color(color)
+        self.apparent_color = pygame.Color(int(self.color.r*self.light_factor), int(self.color.g*self.light_factor), int(self.color.b*self.light_factor))
         
-        if self.triangles:
-            glBegin(GL_TRIANGLES)
-            for triangle in self.triangles:
-                draw_triangle(triangle)
-            glEnd()
+        self.projected_vertices = projected_vertices
+    
+    @classmethod
+    def split_polygon(cls, vertices: list[Quaternion], proj_vertices: list[tuple[int, int]], *args, **kwargs):
+        return [cls([vertices[0], vertices[i+1], vertices[i+2]], [proj_vertices[0], proj_vertices[i+1], proj_vertices[i+2]], *args, **kwargs) for i in range(len(vertices)-2)]
+
+    def render(self, window):
+        window.draw_polygon(self.projected_vertices, self.apparent_color, filled=True)
+        window.draw_lines(self.projected_vertices, self.apparent_color)
+
+    def __repr__(self):
+        return f"Triangle({self.vertices})"
+    
+    __str__ = __repr__
+
+
+class Renderer:
+    
+    def __init__(self, window, camera):
+        self.window = window
+        self.camera = camera
+    
+    def create_triangles(self, mesh):
+        focal_length = self.camera.focal_length
+        focal_vector = focal_length*qk
+        absolute_focal_vector = focal_vector.morphed(*self.camera.unit_vectors)
+        light_vector = Q([1,2,3]).unmorphed(*self.camera.unit_vectors)
+        triangles = []
+        vertices = mesh.qvertices.morphed(*mesh.true_unit_vectors) + mesh.true_position
+        relative_vertices = (vertices + -(self.camera.position + absolute_focal_vector)).unmorphed(*self.camera.unit_vectors)
+        projected_vertices, mesh.fov_bools = self.window.project_vertices(relative_vertices, focal_length)
+        for triangle_face in mesh.triangle_faces:
+            if True not in [mesh.fov_bools[i] for i in triangle_face]: # No vertices are in the field of view
+                continue
+            triangle = Triangle(
+                [relative_vertices[i] for i in triangle_face],
+                [projected_vertices[i] for i in triangle_face],
+                focal_vector,
+                mesh.color,
+                light_vector,
+            )
+            if False in [-2*self.window.width < triangle.projected_vertices[j][0] < 3*self.window.width and 
+                            -2*self.window.height < triangle.projected_vertices[j][1] < 3*self.window.height
+                            for j in range(3)]:
+                continue
+            if (Quaternion.dot((triangle.middle_point + focal_vector).normalized, triangle.normal.normalized) > 0):
+                continue
+            triangles.append(triangle)
+        return triangles
+    
+            #face_triangles = Triangle.split_polygon(
+            #    [relative_vertices[i] for i in face],
+            #    [projected_vertices[i] for i in face],
+            #    self.focal_vector,
+            #    mesh.color,
+            #    Q([1,2,3]).unmorphed(*self.camera.unit_vectors)
+            #)
+            #for i in reversed(range(len(face_triangles))):
+    
+    def render(self, objects):
+        if not objects:
+            # Don't try to render anything if there are no meshes to render
+            return
+        
+        objects = geometry.Group(objects)
+        meshes = objects.unpack()
+        
+        triangles = []
+        
+        for mesh in meshes:
+            triangles.extend(self.create_triangles(mesh))
+        
+        distances = [(i, triangle.vertex_distance_sum) for i, triangle in enumerate(triangles)]
+        
+        try:
+            order = list(zip(*sorted(distances, key=lambda x: x[1], reverse=True)))[0]
+        except IndexError as e:
+            #print(e)
+            # There are no triangles to draw (they're outside the field of view)
+            return
+
+        for i in order:
+            triangles[i].render(self.window)
+        
+        
+        
