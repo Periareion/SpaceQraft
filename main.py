@@ -1,30 +1,36 @@
 
 from qraft import *
 
-window = Window(title='Cube', size=(800,600))
-camera = window.camera
+window = Window(title='Qraft', size=(800,600))
 
 group = Group([
-    UVSphere(vertical_n=10, horizontal_n=20, color = '#CCEEFF')
-    ], position=Q([0,0,3]))
+    #Cuboid(),
+    ],
+    [
+        Group([
+            Icosasphere(radius=0.2, k=0),
+        ],
+        position=Q([1.5,0,0])),
+        Group([
+            UVSphere(radius=0.2, color='#0066CC'),
+        ],
+        position=Q([-1.5,0,0]))
+    ],
+    position=Q([0,0,3]))
 
-cube1 = Cuboid(Q([0,0,5]), size=(2,1,2))
-cube2 = Cuboid(Q([0,1,5]), size=(2,1,2), color='#ff8000')
+    #Lines([(0,0,3), (0,1,3), (2,1,3), (-1,2,3), (2,2,3)], True, 0.05)
+mouse = peripherals.Mouse()
+keyboard = peripherals.Keyboard()
 
-renderer = Renderer(window, camera)
-
-mouse = Mouse()
-keyboard = Keyboard()
+window.renderer.objects = [group]
 
 running = True
 while running:
-    
-    group.unit_vectors.rotate(Q([1,1,1]), 0.02)
-    
+    group.unit_vectors.rotate(qi+qj, 0.0)
     mouse.update()
-    keyboard.update()
-    camera.movement(mouse, keyboard)
+    keyboard.update() 
+    window.camera.movement(mouse, keyboard)
     
-    renderer.render([group])
+    window.renderer.render()
     
     running = not bool(window.mainloop_events(True))

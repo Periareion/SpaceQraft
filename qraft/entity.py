@@ -9,8 +9,8 @@ class Entity:
         position: Quaternion = None,
         unit_vectors: UnitVectors = None,
     ):
-        self.position = utils.default(Q([0,0,0]), position)
-        self.unit_vectors = utils.default(UV.copy(), unit_vectors)
+        self.position = Q([0,0,0]) if position is None else position
+        self.unit_vectors = UV.copy() if unit_vectors is None else unit_vectors
 
     def inherit(self, parent_position: Quaternion, parent_unit_vectors: UnitVectors):
         self.true_position = parent_position + self.position.morphed(*parent_unit_vectors)

@@ -6,6 +6,8 @@ import pygame
 from aquaternion import *
 
 from . import camera as cam
+from . import peripherals
+from . import graphics
 
 class Window:
 
@@ -28,6 +30,7 @@ class Window:
         self.k = 0
         
         self.camera = cam.Camera(Q([0,0,0]), UnitVectors(), 60)
+        self.renderer = graphics.Renderer(self, self.camera)
         
     def update(self):
         pygame.display.update()
@@ -58,7 +61,7 @@ class Window:
     def mainloop(self):
         looping = True
         while looping:
-            looping = not bool(self.mainloop_events())
+            looping = not bool(self.mainloop_events(True))
 
 
     def _set_size(self, size: tuple[int, int]):
@@ -88,17 +91,6 @@ class Window:
         self._set_size((self.width, height))
     
     
-    def project_vertex(self, camera: cam.Camera, vertex: Quaternion):
-        window_width = self.width
-        window_height = self.height
-        focal_length = camera.focal_length(window_width)
-        
-        relative_vertex = (vertex - camera.position).unmorphed(*camera.unit_vectors)
-        x = (relative_vertex.x * focal_length / (focal_length + relative_vertex.z * window_width / 2) + 1) * window_width / 2
-        y = (relative_vertex.y * focal_length / (focal_length + relative_vertex.z * window_height / 2) + 1) * window_height / 2
-        
-        return (x, y)
-    
     def project_vertices(self, relative_vertices: QuaternionArray, focal_length=1):
         window_width = self.width
         window_height = self.height
@@ -123,3 +115,7 @@ class Window:
     
     def draw_polygon(self, vertices: list[tuple[int, int]], color=pygame.Color(0,80,160), filled=True, width=1):
         pygame.draw.polygon(self.surface, color, vertices, width*(not filled))
+        
+    def draw_points(self, vertices: list[tuple[int, int]], color=pygame.Color(255,0,0)):
+        for vertex in vertices:
+            pygame.draw.circle(self.surface, color, vertex, 3)

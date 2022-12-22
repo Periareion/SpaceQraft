@@ -22,32 +22,18 @@ class Mouse:
         self.upclicks = tuple((self.pressed[i] and not new_pressed[i] for i in range(5)))
         self.pressed = new_pressed
         
-        if pygame.mouse.get_focused():
-            if self.downclicks[2]: self.toggle_focus = True
-                
-            if self.toggle_focus:
-                self.focused = not self.focused
-                if self.focused: self.hide()
-                else:            self.show()
-
-                self.toggle_focus = False
-                self.position = self.half_width, self.half_height
-                pygame.mouse.set_pos(self.position)
-
+        if self.downclicks[2]:
+            self.focused = not self.focused
             if self.focused:
-                new_position = pygame.mouse.get_pos()
-                self.delta_position = new_position[0]-self.position[0], new_position[1]-self.position[1]
-                pygame.mouse.set_pos(self.position)
-
+                self.hide()
+                self.position = pygame.mouse.get_pos()
             else:
-                if self.position is None:
-                    self.position = pygame.mouse.get_pos()
-                #new_position = pygame.mouse.get_pos()
-                #self.delta_position = new_position[0]-self.position[0], new_position[1]-self.position[1]
-                #self.position = new_position
-        else:
-            self.position = None
-            self.delta_position = (0, 0)
+                self.show()
+        
+        if self.focused:
+            new_position = pygame.mouse.get_pos()
+            self.delta_position = new_position[0]-self.position[0], new_position[1]-self.position[1]
+            pygame.mouse.set_pos(self.position)
 
     def hide(self):
         pygame.mouse.set_visible(False)

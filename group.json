@@ -1,0 +1,26 @@
+{
+    "type": "group",
+    "shapes": [
+        {
+            "type": "mesh",
+            "vertices": [[0, 0, 3], [1, 1, 2], [1, 0, 4]],
+            "faces": [[0, 1, 2]],
+            "color": "#ff0000"
+        },
+        {
+            "type": "mesh",
+            "vertices": [[0, 0, 3], [2, 0, 3], [1, -1, 4]],
+            "faces": [[0, 1, 2]],
+            "color": "#00ff00"
+        },
+        {
+            "type": "mesh",
+            "vertices": [[0, 0, 3], [1, -1, 4], [0, -1, 5]],
+            "faces": [[0, 1, 2]],
+            "color": "#0000ff"
+        }
+    ],
+    "subgroups": [],
+    "position": [0, 0, 0],
+    "unit_vectors": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+}
